@@ -24,6 +24,7 @@ const StudentSchema = new Schema({
   student_skills: {
     type: [""],
     required: true,
+    default: false,
   },
   student_phone: {
     type: String,

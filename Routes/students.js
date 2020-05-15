@@ -29,8 +29,6 @@ router.get("/students", (req, res) => {
     .catch((err) => console.log(err));
 });
 
-//students data from database
-
 // create details Routes
 router.get("/student_details/:id", (req, res) => {
   Student.findOne({ _id: req.params.id })
@@ -40,6 +38,17 @@ router.get("/student_details/:id", (req, res) => {
     })
     .catch((err) => console.log(err));
 });
+
+/*-----------------------------edit student route starts here ---------------------------------*/
+router.get("/edit-student/:id", (req, res) => {
+  Student.findOne({ _id: req.params.id })
+    .lean()
+    .then((editStudent) => {
+      res.render("./students/edit-student", { editStudent: editStudent });
+    })
+    .catch((err) => console.log(err));
+});
+/*----------------------------edit student route ends here -----------------------------------*/
 
 //======================all get routes ends here ===========================
 
@@ -82,4 +91,43 @@ router.post("/add-student", upload.single("student_photo"), (req, res) => {
     .catch((err) => console.log(err));
 });
 
+//update or modify student by using http put method
+router.put("/edit-student/:id", upload.single("student_photo"), (req, res) => {
+  // modify students infomation so first find a document object by using mongodb findone method
+  Student.findOne({ _id: req.params.id })
+    .then((updateStudent) => {
+      // lefthandside is old value  = righthandside is new value
+
+      updateStudent.student_photo = req.file;
+      updateStudent.student_id = req.body.student_id;
+      updateStudent.student_name = req.body.student_name;
+      updateStudent.student_email = req.body.student_email;
+      updateStudent.student_phone = req.body.student_phone;
+      updateStudent.student_skills = req.body.student_skills;
+      updateStudent.student_gender = req.body.student_gender;
+      updateStudent.student_location = req.body.student_location;
+      updateStudent.student_education = req.body.student_education;
+      updateStudent.student_percentage = req.body.student_percentage;
+      updateStudent.student_dob = req.body.student_dob;
+
+      updateStudent
+        .save()
+        .then((update) => {
+          res.redirect("/student/students", 201, { update });
+        })
+        .catch((err) => console.log(err));
+    })
+    .catch((err) => console.log(err));
+});
+
+/*---------------------------------delete post route starts here --------------------------------*/
+router.delete("/student-delete/:id", (req, res) => {
+  //find mongodb id
+  Student.deleteOne({ _id: req.params.id })
+    .then(() => {
+      res.redirect("/student/students", 201);
+    })
+    .catch((err) => console.log(err));
+});
+/*---------------------------------delete post route ends here --------------------------------*/
 module.exports = router;
